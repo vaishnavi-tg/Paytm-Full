@@ -2,6 +2,7 @@ import zod, { success } from "zod"
 import { User } from "../models/userModel.js"
 import { JWT_SECRET } from "../config.js"
 import jwt from "jsonwebtoken"
+import { Account } from "../models/accountModel.js"
 
 const signupSchema = zod.object({
     email: zod.string(),
@@ -17,29 +18,36 @@ const Signup = async (req, res) => {
         return res.status(411).json({
             "msg": "Incorrect signup Inputs"
         })
-
     }
-    const user = User.findOne({
+
+    const user = await User.findOne({
         email: req.body.email
     })
 
-    if (user._id) {
+    if (user) {
         return res.status(411).json({
             msg: "Email already taken"
         })
     }
 
     const dbUser = await User.create(body)
+    console.log(dbUser)
+    await Account.create({
+        userId: dbUser._id,
+        balance: 1 + Math.random() * 10000
+    });
+
+
     const token = jwt.sign({
         userId: dbUser._id
     }, JWT_SECRET)
+
     res.json({
         msg: "User created successfully",
         token: token
     })
 
 }
-
 
 const signInSchema = zod.object({
     email: zod.string(),
@@ -96,20 +104,20 @@ const updateBody = async (req, res, authmiddledware) => {
     }
 
     await User.updateOne({
-        _id : req.userId
-    },req.body)
+        _id: req.userId
+    }, req.body)
 
     return res.json({
-        msg:"User updated successfully"
+        msg: "User updated successfully"
     })
 
 }
 
-const getUsers = async(req,res)=>{
+const getUsers = async (req, res) => {
     const filter = req.query.filter || ""
 
     const users = await User.findOne({
-         $or: [{
+        $or: [{
             firstName: {
                 "$regex": filter
             }
@@ -130,4 +138,4 @@ const getUsers = async(req,res)=>{
     })
 }
 
-export { Signup, Signin, updateBody, getUsers}
+export { Signup, Signin, updateBody, getUsers }

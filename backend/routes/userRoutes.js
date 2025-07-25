@@ -1,14 +1,14 @@
 import { Router } from "express";
 import { Signup, Signin, updateBody, getUsers } from "../controllers/userControllers.js"
 
-const router = Router()
+const userRouter = Router()
 
-router.post("/signup", Signup)
+userRouter.post("/signup", Signup)
 
-router.post("/signin", Signin)
+userRouter.post("/signin", Signin)
 
-router.put("/update",updateBody)
+userRouter.put("/update",updateBody)
 
-router.get("/users",getUsers)
+userRouter.get("/users",getUsers)
 
-export default router
+export default userRouter
