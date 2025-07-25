@@ -1,6 +1,7 @@
 import zod from "zod"
 import { User } from "../models/userModel.js"
 import { JWT_SECRET } from "../config.js"
+import jwt from "jsonwebtoken"
 
 const signupSchema = zod.object({
     email: zod.string(),
@@ -39,4 +40,42 @@ const Signup = async (req, res) => {
 
 }
 
-export { Signup }
+
+const signInSchema = zod.object({
+    email: zod.string(),
+    password: zod.string()
+})
+
+const Signin = async (req, res) => {
+    const body = req.body
+    const parsed = signInSchema.safeParse(body)
+
+    if (!parsed.success) {
+        return res.status(411).json({
+            "msg": "Incorrect Inputs"
+        })
+    }
+
+    const user = await User.findOne({
+        email: req.body.email,
+        password: req.body.password
+    })
+
+    if (user) {
+        const token = jwt.sign({
+            userId: user._id
+        }, JWT_SECRET)
+
+        res.json({
+            token
+        })
+        return
+    }
+
+    res.status(411).json({
+        msg: "Error while logging In"
+    })
+
+}
+
+export { Signup, Signin }
