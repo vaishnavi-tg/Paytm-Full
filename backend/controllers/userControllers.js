@@ -1,4 +1,4 @@
-import zod from "zod"
+import zod, { success } from "zod"
 import { User } from "../models/userModel.js"
 import { JWT_SECRET } from "../config.js"
 import jwt from "jsonwebtoken"
@@ -78,4 +78,56 @@ const Signin = async (req, res) => {
 
 }
 
-export { Signup, Signin }
+const updateSchema = zod.object({
+    password: zod.string().optional(),
+    firstname: zod.string().optional(),
+    lastname: zod.string().optional()
+})
+
+const updateBody = async (req, res, authmiddledware) => {
+
+    const body = req.body
+    const parsed = updateSchema.safeParse(body)
+
+    if (!parsed.success) {
+        return res.status(411).json({
+            msg: "Error while updating information"
+        })
+    }
+
+    await User.updateOne({
+        _id : req.userId
+    },req.body)
+
+    return res.json({
+        msg:"User updated successfully"
+    })
+
+}
+
+const getUsers = async(req,res)=>{
+    const filter = req.query.filter || ""
+
+    const users = await User.findOne({
+         $or: [{
+            firstName: {
+                "$regex": filter
+            }
+        }, {
+            lastName: {
+                "$regex": filter
+            }
+        }]
+    })
+
+    res.json({
+        user: users.map(user => ({
+            username: user.username,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            _id: user._id
+        }))
+    })
+}
+
+export { Signup, Signin, updateBody, getUsers}
