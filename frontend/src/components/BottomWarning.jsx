@@ -12,5 +12,4 @@ function BottomWarning({ label, buttonText, to }) {
         </div>
     )
 }
-
-export {BottomWarning}
+export { BottomWarning }
