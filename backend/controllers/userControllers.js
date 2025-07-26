@@ -3,6 +3,8 @@ import { User } from "../models/userModel.js"
 import { JWT_SECRET } from "../config.js"
 import jwt from "jsonwebtoken"
 import { Account } from "../models/accountModel.js"
+import bcrypt from "bcrypt";
+
 
 const signupSchema = zod.object({
     email: zod.string(),
@@ -30,8 +32,15 @@ const Signup = async (req, res) => {
         })
     }
 
-    const dbUser = await User.create(body)
-    console.log(dbUser)
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds)
+
+    const dbUser = await User.create({
+        email: req.body.email,
+        password: hashedPassword,
+        firstname: req.body.firstname,
+        lastname: req.body.lastname
+    })
     await Account.create({
         userId: dbUser._id,
         balance: 1 + Math.random() * 10000
@@ -65,11 +74,10 @@ const Signin = async (req, res) => {
     }
 
     const user = await User.findOne({
-        email: req.body.email,
-        password: req.body.password
-    })
+        email: req.body.email
+    });
 
-    if (user) {
+    if (user && await bcrypt.compare(req.body.password, user.password)) {
         const token = jwt.sign({
             userId: user._id
         }, JWT_SECRET)
@@ -83,7 +91,6 @@ const Signin = async (req, res) => {
     res.status(411).json({
         msg: "Error while logging In"
     })
-
 }
 
 const updateSchema = zod.object({
