@@ -99,7 +99,7 @@ const updateSchema = zod.object({
     lastname: zod.string().optional()
 })
 
-const updateBody = async (req, res, authmiddledware) => {
+const updateBody = async (req, res) => {
 
     const body = req.body
     const parsed = updateSchema.safeParse(body)

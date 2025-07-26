@@ -1,10 +1,9 @@
 import mongoose from "mongoose"
-import { User } from "./userModel.js"
 
 const accountSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: User,
+        ref: 'User',
         required: true
     },
     balance: {
@@ -12,6 +11,6 @@ const accountSchema = new mongoose.Schema({
         required: true
     }
 })
-const Account = mongoose.model("Account",accountSchema)
+const Account = mongoose.model('Account', accountSchema)
 
-export {Account}
+export { Account }
