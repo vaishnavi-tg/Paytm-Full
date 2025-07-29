@@ -17,7 +17,7 @@ const transfer = async (req, res) => {
     const { amount, to } = req.body;
 
     const account = await Account.findOne({ userId:req.userId}).session(session);
-    console.log(account)
+    
     if (!account || account.balance < amount) {
         await session.abortTransaction();
         return res.status(400).json({

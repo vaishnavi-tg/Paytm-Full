@@ -3,6 +3,8 @@ import { Button } from "../components/Button.jsx"
 import { Heading } from "../components/Heading.jsx"
 import { InputBox } from "../components/InputBox.jsx"
 import { SubHeading } from "../components/SubHeading.jsx"
+import { useState } from "react"
+import axios from "axios"
 
 export const SignUp = () => {
 
@@ -29,13 +31,14 @@ export const SignUp = () => {
           setPassword(e.target.value)
         }} placeholder="123456" label={"Password"} />
         <div className="pt-4">
-          <Button onClick={()=>{
-            axios.post("http://localhost:3000/api/v1/user/signup",{
-              email,
-              password,
-              firstname,
-              lastname
+          <Button onClick={async () => {
+            const response = await axios.post("http://localhost:3000/api/v1/user/signup", {
+              firstname: firstname,
+              lastname: lastname,
+              email: email,
+              password: password,
             })
+            localStorage.setItem("token", response.data.token)
           }} label={"Sign up"} />
         </div>
         <BottomWarning label={"Already have an account?"} buttonText={"Sign in"} to={"/signin"} />
